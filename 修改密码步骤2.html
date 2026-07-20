@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>修改密码 - 华创证券APP</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0B101E;
+      --bg-card: #1B243D;
+      --accent-blue: #3464E0;
+      --text-primary: #FFFFFF;
+      --text-secondary: #8A98B6;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --error-color: #FF4D4F;
+      --success-color: #00B884;
+      --placeholder-color: rgba(138, 152, 182, 0.5);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #0B101E 0%, #131A2F 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: transparent;
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 状态栏 */
+    .status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .status-icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    /* 页面容器 */
+    .page-container {
+      height: calc(812px - 44px - 34px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .page-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* 导航栏 */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: linear-gradient(180deg, #0B101E 0%, rgba(11, 16, 30, 0.95) 100%);
+    }
+
+    .nav-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .nav-icon svg {
+      color: #FFFFFF;
+      opacity: 0.95;
+    }
+
+    .nav-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* 内容区域 */
+    .content {
+      padding: 24px 20px;
+    }
+
+    .step-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 24px;
+    }
+
+    /* 输入框组 */
+    .input-group {
+      background: var(--bg-card);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .input-row:last-child {
+      border-bottom: none;
+    }
+
+    .input-label {
+      font-size: 15px;
+      color: var(--text-secondary);
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    .input-field {
+      flex: 1;
+      background: transparent;
+      border: none;
+      font-size: 15px;
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .input-field::placeholder {
+      color: var(--placeholder-color);
+    }
+
+    .toggle-password {
+      width: 24px;
+      height: 24px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      opacity: 0.6;
+    }
+
+    .toggle-password:hover {
+      opacity: 1;
+    }
+
+    /* 密码强度指示器 */
+    .strength-section {
+      margin-top: 20px;
+      padding: 0 4px;
+    }
+
+    .strength-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .strength-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .strength-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .strength-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .strength-segment {
+      flex: 1;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+
+    .strength-segment.active.weak {
+      background: var(--error-color);
+    }
+
+    .strength-segment.active.medium {
+      background: #FFB800;
+    }
+
+    .strength-segment.active.strong {
+      background: var(--success-color);
+    }
+
+    /* 规则校验 */
+    .rules-section {
+      background: var(--bg-card);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+    }
+
+    .rule-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .rule-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .rule-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--error-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .rule-icon svg {
+      width: 10px;
+      height: 10px;
+      color: white;
+    }
+
+    .rule-icon.success {
+      background: var(--success-color);
+    }
+
+    .rule-text {
+      font-size: 12px;
+      color: var(--error-color);
+      line-height: 1.4;
+    }
+
+    .rule-text.success {
+      color: var(--success-color);
+    }
+
+    /* 确定按钮 */
+    .confirm-btn {
+      width: 100%;
+      height: 48px;
+      background: #F6B78F;
+      border: none;
+      border-radius: 24px;
+      color: white;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: not-allowed;
+    }
+
+    .confirm-btn.active {
+      background: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    /* 温馨提示 */
+    .tips {
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* 成功弹窗 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 300px;
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .modal-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      background: rgba(0, 184, 132, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-icon svg {
+      color: #00B884;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .modal-btn {
+      width: 100%;
+      height: 44px;
+      background: var(--accent-blue);
+      border: none;
+      border-radius: 22px;
+      color: var(--text-primary);
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    /* Toast提示 */
+    .toast {
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1001;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Home指示条 */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><path d="M1 4.5C1 3.67 1.67 3 2.5 3H3.5C4.33 3 5 3.67 5 4.5V10.5C5 11.33 4.33 12 3.5 12H2.5C1.67 12 1 11.33 1 10.5V4.5Z"/><path d="M6 3C6 2.17 6.67 1.5 7.5 1.5H8.5C9.33 1.5 10 2.17 10 3V10.5C10 11.33 9.33 12 8.5 12H7.5C6.67 12 6 11.33 6 10.5V3Z"/><path d="M11 2C11 1.17 11.67 0.5 12.5 0.5H13.5C14.33 0.5 15 1.17 15 2V10.5C15 11.33 14.33 12 13.5 12H12.5C11.67 12 11 11.33 11 10.5V2Z"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.5C9.38 2.5 10.5 3.62 10.5 5C10.5 6.38 9.38 7.5 8 7.5C6.62 7.5 5.5 6.38 5.5 5C5.5 3.62 6.62 2.5 8 2.5ZM8 9.5C10.5 9.5 12.73 7.71 13.53 5.5H10.03C9.73 5.5 9.53 5.29 9.53 5C9.53 4.71 9.73 4.5 10.03 4.5H11.5C11.12 2.81 9.69 1.5 8 1.5C6.31 1.5 4.88 2.81 4.5 4.5H6C6.29 4.5 6.5 4.71 6.5 5C6.5 5.29 6.29 5.5 6 5.5H2.47C3.27 7.71 5.5 9.5 8 9.5Z"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="currentColor" fill="none" opacity="0.4"/><rect x="2" y="2" width="17" height="8" rx="1.5" fill="currentColor"/><path d="M23 4V8C23.83 7.67 24.5 6.92 24.5 6C24.5 5.08 23.83 4.33 23 4Z"/></svg>
+      </div>
+    </div>
+
+    <div class="page-container">
+      <!-- 导航栏 -->
+      <div class="nav-bar">
+        <div class="nav-icon" onclick="history.back()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </div>
+        <div class="nav-title">修改密码</div>
+        <div style="width: 32px;"></div>
+      </div>
+
+      <!-- 内容区域 -->
+      <div class="content">
+        <div class="step-title">设置新密码</div>
+
+        <!-- 密码输入 -->
+        <div class="input-group">
+          <div class="input-row">
+            <span class="input-label">新密码</span>
+            <input type="password" class="input-field" id="passwordInput" placeholder="请输入新密码" maxlength="20">
+            <svg class="toggle-password" id="togglePassword" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="togglePasswordVisibility('passwordInput', 'togglePassword')">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div class="input-row">
+            <span class="input-label">新密码确认</span>
+            <input type="password" class="input-field" id="confirmInput" placeholder="请输入重复密码" maxlength="20">
+            <svg class="toggle-password" id="toggleConfirm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="togglePasswordVisibility('confirmInput', 'toggleConfirm')">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 密码强度 -->
+        <div class="strength-section">
+          <div class="strength-header">
+            <span class="strength-label">密码安全性</span>
+            <span class="strength-text" id="strengthText"></span>
+          </div>
+          <div class="strength-bar">
+            <div class="strength-segment" id="seg1"></div>
+            <div class="strength-segment" id="seg2"></div>
+            <div class="strength-segment" id="seg3"></div>
+            <div class="strength-segment" id="seg4"></div>
+          </div>
+        </div>
+
+        <!-- 规则校验 -->
+        <div class="rules-section">
+          <div class="rule-item">
+            <div class="rule-icon" id="rule1Icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </div>
+            <span class="rule-text" id="rule1Text">密码长度为8-20位</span>
+          </div>
+          <div class="rule-item">
+            <div class="rule-icon" id="rule2Icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </div>
+            <span class="rule-text" id="rule2Text">使用至少两种字符组合：大写字母、小写字母、数字和符号（例如$、#、@等）</span>
+          </div>
+        </div>
+
+        <!-- 确定按钮 -->
+        <button class="confirm-btn" id="confirmBtn" onclick="confirmChange()">确定</button>
+
+        <!-- 温馨提示 -->
+        <div class="tips">
+          温馨提示：密码长度至少8个字符，最长20个字符，为了您的密码安全，建议使用数字字母混合排列，区分大小写。
+        </div>
+      </div>
+    </div>
+
+    <!-- 成功弹窗 -->
+    <div class="modal-overlay" id="successModal">
+      <div class="modal">
+        <div class="modal-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="modal-title">修改成功</div>
+        <div class="modal-desc">您已成功修改密码</div>
+        <button class="modal-btn" onclick="goBack()">确定</button>
+      </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Home指示条 -->
+    <div class="home-indicator"></div>
+  </div>
+
+  <script>
+    const passwordInput = document.getElementById('passwordInput');
+    const confirmInput = document.getElementById('confirmInput');
+
+    // 切换密码可见性
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+      } else {
+        input.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      }
+    }
+
+    // 计算密码强度
+    function calculateStrength(password) {
+      let strength = 0;
+      
+      if (password.length >= 8 && password.length <= 20) strength++;
+      if (/[a-z]/.test(password)) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^a-zA-Z0-9]/.test(password)) strength++;
+      
+      return Math.min(strength, 4);
+    }
+
+    // 验证规则
+    function validateRules(password) {
+      const rule1 = password.length >= 8 && password.length <= 20;
+      const hasUpper = /[A-Z]/.test(password);
+      const hasLower = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+      const rule2 = (hasUpper ? 1 : 0) + (hasLower ? 1 : 0) + (hasNumber ? 1 : 0) + (hasSpecial ? 1 : 0) >= 2;
+      
+      return { rule1, rule2 };
+    }
+
+    // 更新UI
+    function updateUI() {
+      const password = passwordInput.value;
+      const confirm = confirmInput.value;
+      const strength = calculateStrength(password);
+      const rules = validateRules(password);
+
+      // 更新强度条
+      for (let i = 1; i <= 4; i++) {
+        const seg = document.getElementById('seg' + i);
+        seg.className = 'strength-segment';
+        if (i <= strength) {
+          seg.classList.add('active');
+          if (strength === 1) seg.classList.add('weak');
+          else if (strength <= 2) seg.classList.add('medium');
+          else seg.classList.add('strong');
+        }
+      }
+
+      // 更新强度文字
+      const strengthText = document.getElementById('strengthText');
+      if (password.length === 0) {
+        strengthText.textContent = '';
+      } else if (strength <= 1) {
+        strengthText.textContent = '弱';
+      } else if (strength <= 2) {
+        strengthText.textContent = '中';
+      } else {
+        strengthText.textContent = '强';
+      }
+
+      // 更新规则图标
+      const updateRule = (id, passed) => {
+        const icon = document.getElementById(id);
+        const text = document.getElementById(id.replace('Icon', 'Text'));
+        if (passed) {
+          icon.classList.add('success');
+          icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+          text.classList.add('success');
+        } else {
+          icon.classList.remove('success');
+          icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+          text.classList.remove('success');
+        }
+      };
+
+      updateRule('rule1Icon', rules.rule1);
+      updateRule('rule2Icon', rules.rule2);
+
+      // 更新确认按钮状态
+      const confirmBtn = document.getElementById('confirmBtn');
+      if (rules.rule1 && rules.rule2 && password === confirm && password.length > 0) {
+        confirmBtn.classList.add('active');
+      } else {
+        confirmBtn.classList.remove('active');
+      }
+    }
+
+    passwordInput.addEventListener('input', updateUI);
+    confirmInput.addEventListener('input', updateUI);
+
+    function confirmChange() {
+      const password = passwordInput.value;
+      const confirm = confirmInput.value;
+      const rules = validateRules(password);
+
+      if (!rules.rule1) {
+        showToast('请检查密码长度');
+        return;
+      }
+      if (!rules.rule2) {
+        showToast('请使用至少两种字符组合');
+        return;
+      }
+      if (password !== confirm) {
+        showToast('两次密码输入不一致');
+        return;
+      }
+
+      document.getElementById('successModal').classList.add('show');
+    }
+
+    function goBack() {
+      document.getElementById('successModal').classList.remove('show');
+      window.location.href = '个人中心.html';
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
