@@ -26,7 +26,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: #F7F7F7;
+      background: #FFFFFF;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -37,7 +37,7 @@
     .phone-frame {
       width: 375px;
       height: 812px;
-      background: #FFFFFF;
+      background: linear-gradient(180deg, #0B101E 0%, #131A2F 100%);
       border-radius: 40px;
       overflow: hidden;
       position: relative;
@@ -83,15 +83,14 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: #FFFFFF;
-      border-bottom: 1px solid var(--border-color);
+      background: linear-gradient(180deg, #0B101E 0%, rgba(11, 16, 30, 0.95) 100%);
     }
 
     .nav-icon {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: rgba(0, 0, 0, 0.05);
+      background: rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -99,8 +98,8 @@
     }
 
     .nav-icon svg {
-      color: #333333;
-      opacity: 0.9;
+      color: #FFFFFF;
+      opacity: 0.95;
     }
 
     .nav-title {
@@ -123,7 +122,7 @@
 
     /* 输入框组 */
     .input-group {
-      background: var(--bg-card);
+      background: #1B243D;
       border-radius: 12px;
       overflow: hidden;
     }
@@ -202,7 +201,7 @@
     .strength-segment {
       flex: 1;
       height: 4px;
-      background: #E0E0E0;
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 2px;
     }
 
@@ -220,7 +219,7 @@
 
     /* 规则校验 */
     .rules-section {
-      background: #F7F7F7;
+      background: #1B243D;
       border-radius: 8px;
       padding: 12px 16px;
       margin-bottom: 24px;
@@ -314,7 +313,7 @@
 
     .modal {
       width: 300px;
-      background: #FFFFFF;
+      background: #1B243D;
       border-radius: 16px;
       padding: 32px 24px;
       text-align: center;
