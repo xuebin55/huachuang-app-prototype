@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>华创证券APP - 选股票</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0B101E;
+      --bg-card: #1B243D;
+      --bg-card-inner: #12182B;
+      --text-primary: #FFFFFF;
+      --text-secondary: #8A98B6;
+      --accent-blue: #3464E0;
+      --up-color: #FF4D4F;
+      --down-color: #00B884;
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(180deg, #0B101E 0%, #131A2F 100%);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    /* 状态栏 */
+    .status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .status-icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .status-icons svg {
+      opacity: 0.9;
+    }
+
+    .page-container {
+      height: calc(812px - 44px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .page-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* 导航栏 */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: linear-gradient(180deg, #0B101E 0%, rgba(11, 16, 30, 0.95) 100%);
+    }
+
+    .nav-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-icon svg {
+      color: #FFFFFF;
+      opacity: 0.95;
+    }
+
+    .nav-icon-history::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 6px;
+      height: 6px;
+      background: var(--accent-blue);
+      border-radius: 50%;
+    }
+
+    .nav-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* 欢迎区 - 顶部模版结构 */
+    .hero-section {
+      position: relative;
+      min-height: 220px;
+      margin: 0 16px -40px;
+      padding-top: 24px;
+      padding-left: 20px;
+      padding-bottom: 0;
+    }
+
+    .hero-text {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .hero-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 180px;
+    }
+
+    /* AI人物图像 - 右侧，底部对齐hero-section */
+    .hero-avatar {
+      position: absolute;
+      right: 20px;
+      bottom: 0;
+      width: 180px;
+      height: 220px;
+      z-index: 1;
+      overflow: visible;
+    }
+
+    .hero-avatar img,
+    .hero-avatar video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: bottom right;
+    }
+
+    /* ========== 筛选标签栏 ========== */
+    .filter-section {
+      padding: 0 16px 12px;
+      position: sticky;
+      top: 56px;
+      z-index: 90;
+      background: linear-gradient(180deg, rgba(11, 16, 30, 0.95) 0%, rgba(11, 16, 30, 0.85) 80%, transparent 100%);
+    }
+
+    .filter-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .filter-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tag {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .filter-tag.active {
+      background: rgba(52, 100, 224, 0.25);
+      border-color: rgba(52, 100, 224, 0.5);
+      color: #5B8AFF;
+    }
+
+    .filter-tag:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* 模型卡片 */
+    .model-card {
+      margin: 0 16px 16px;
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .model-card.hidden {
+      display: none;
+    }
+
+    .model-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .model-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .model-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    .model-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .model-fav-btn {
+      width: 28px;
+      height: 28px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+    }
+
+    .model-fav-btn svg {
+      width: 18px;
+      height: 18px;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .model-fav-btn.active svg {
+      color: #FFD700;
+      fill: #FFD700;
+    }
+
+    .model-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 4px;
+      text-align: left;
+    }
+
+    .model-update {
+      font-size: 11px;
+      color: var(--text-secondary);
+      opacity: 0.7;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    /* 股票列表 - 胶囊标签样式，两行两列 */
+    .stock-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .stock-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 10px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      justify-content: space-between;
+    }
+
+    .stock-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .stock-change {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .stock-change.up {
+      background: rgba(255, 77, 79, 0.15);
+      color: var(--up-color);
+    }
+
+    .stock-change.down {
+      background: rgba(0, 184, 136, 0.15);
+      color: var(--down-color);
+    }
+
+    /* 立即选股按钮 */
+    .run-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 50%;
+      margin: 0 auto;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--accent-blue) 0%, #4A7AE8 100%);
+      border: none;
+      border-radius: 20px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .run-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 20px rgba(52, 100, 224, 0.4);
+    }
+
+    .run-btn-text {
+      letter-spacing: 1px;
+    }
+
+    .run-btn-arrow {
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .run-btn-arrow svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 分割线 */
+    .section-divider {
+      display: none;
+    }
+
+    /* 问答输入框 - 吸底固定 */
+    .qa-input-wrapper {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px 34px;
+      background: linear-gradient(180deg, rgba(11, 16, 30, 0) 0%, rgba(11, 16, 30, 0.98) 30%);
+      z-index: 200;
+    }
+
+    .qa-input-normal {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #1B2338;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 10px 14px;
+    }
+
+    .qa-mic-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .qa-mic-btn svg {
+      width: 18px;
+      height: 18px;
+      color: #8A98B6;
+    }
+
+    .qa-input-field {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #FFFFFF;
+      font-size: 14px;
+      min-width: 0;
+    }
+
+    .qa-input-field::placeholder {
+      color: #8A98B6;
+    }
+
+    .qa-send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #3464E0;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .qa-send-btn svg {
+      width: 16px;
+      height: 16px;
+      color: #FFFFFF;
+    }
+
+    .qa-input-voice {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2A56CC 0%, #3464E0 50%, #4A7AE8 100%);
+      border-radius: 24px;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .qa-voice-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .qa-voice-icon svg {
+      width: 20px;
+      height: 20px;
+      color: #FFFFFF;
+    }
+
+    .qa-voice-text {
+      font-size: 15px;
+      font-weight: 500;
+      color: #FFFFFF;
+      letter-spacing: 2px;
+    }
+
+    .qa-voice-hint {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 4px;
+    }
+
+    .qa-input-recording {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(5, 8, 16, 0.95);
+      z-index: 1000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qa-recording-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .qa-recording-text {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+    }
+
+    .qa-recording-wave {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+      height: 60px;
+    }
+
+    .qa-wave-bar {
+      width: 3px;
+      background: linear-gradient(180deg, #4A7AE8 0%, #3464E0 100%);
+      border-radius: 2px;
+      animation: wave 0.8s ease-in-out infinite;
+    }
+
+    .qa-wave-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+    .qa-wave-bar:nth-child(2) { height: 35px; animation-delay: 0.1s; }
+    .qa-wave-bar:nth-child(3) { height: 50px; animation-delay: 0.2s; }
+    .qa-wave-bar:nth-child(4) { height: 40px; animation-delay: 0.15s; }
+    .qa-wave-bar:nth-child(5) { height: 55px; animation-delay: 0.25s; }
+    .qa-wave-bar:nth-child(6) { height: 30px; animation-delay: 0.05s; }
+    .qa-wave-bar:nth-child(7) { height: 45px; animation-delay: 0.3s; }
+    .qa-wave-bar:nth-child(8) { height: 25px; animation-delay: 0.12s; }
+    .qa-wave-bar:nth-child(9) { height: 38px; animation-delay: 0.22s; }
+
+    @keyframes wave {
+      0%, 100% { transform: scaleY(0.5); opacity: 0.6; }
+      50% { transform: scaleY(1.2); opacity: 1; }
+    }
+
+    .qa-recording-cancel {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 8px;
+    }
+
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><path d="M1 4.5C1 3.67 1.67 3 2.5 3H3.5C4.33 3 5 3.67 5 4.5V10.5C5 11.33 4.33 12 3.5 12H2.5C1.67 12 1 11.33 1 10.5V4.5Z"/><path d="M6 3C6 2.17 6.67 1.5 7.5 1.5H8.5C9.33 1.5 10 2.17 10 3V10.5C10 11.33 9.33 12 8.5 12H7.5C6.67 12 6 11.33 6 10.5V3Z"/><path d="M11 2C11 1.17 11.67 0.5 12.5 0.5H13.5C14.33 0.5 15 1.17 15 2V10.5C15 11.33 14.33 12 13.5 12H12.5C11.67 12 11 11.33 11 10.5V2Z"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.5C9.38 2.5 10.5 3.62 10.5 5C10.5 6.38 9.38 7.5 8 7.5C6.62 7.5 5.5 6.38 5.5 5C5.5 3.62 6.62 2.5 8 2.5ZM8 9.5C10.5 9.5 12.73 7.71 13.53 5.5H10.03C9.73 5.5 9.53 5.29 9.53 5C9.53 4.71 9.73 4.5 10.03 4.5H11.5C11.12 2.81 9.69 1.5 8 1.5C6.31 1.5 4.88 2.81 4.5 4.5H6C6.29 4.5 6.5 4.71 6.5 5C6.5 5.29 6.29 5.5 6 5.5H2.47C3.27 7.71 5.5 9.5 8 9.5Z"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="currentColor" fill="none" opacity="0.4"/><rect x="2" y="2" width="17" height="8" rx="1.5" fill="currentColor"/><path d="M23 4V8C23.83 7.67 24.5 6.92 24.5 6C24.5 5.08 23.83 4.33 23 4Z"/></svg>
+      </div>
+    </div>
+
+    <div class="page-container">
+      <!-- 导航栏 -->
+      <div class="nav-bar">
+        <div class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </div>
+        <div class="nav-title">选股票</div>
+        <div class="nav-icon nav-icon-history">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+      </div>
+
+      <!-- 欢迎区 -->
+      <div class="hero-section">
+        <div class="hero-text">
+          <div class="hero-title">您好</div>
+          <div class="hero-subtitle">已完成筛选<br>为您精选11大策略模型</div>
+        </div>
+        <div class="hero-avatar">
+          <img src="ai-min.png" alt="AI助手">
+        </div>
+      </div>
+
+      <!-- ========== 筛选标签栏 ========== -->
+      <div class="filter-section">
+        <div class="filter-scroll">
+          <div class="filter-tag active" data-filter="all">全部 11</div>
+          <div class="filter-tag" data-filter="daily">每日调仓</div>
+          <div class="filter-tag" data-filter="quarterly">季度调仓</div>
+          <div class="filter-tag" data-filter="monthly">月末调仓</div>
+          <div class="filter-tag" data-filter="favorite">我的收藏</div>
+        </div>
+      </div>
+
+      <!-- 模型01: 价格走势模型 -->
+      <div class="model-card" data-category="daily" data-name="价格走势模型">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">价格走势模型</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">通过K线形态、均线系统综合评分筛选</div>
+        <div class="model-update">6月26日 更新 · 下次调仓 7月17日 16:00</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">瑞联新材</span><span class="stock-change down">-2.62%</span></div>
+          <div class="stock-item"><span class="stock-name">信立泰</span><span class="stock-change up">+1.16%</span></div>
+          <div class="stock-item"><span class="stock-name">东方财富</span><span class="stock-change up">+2.35%</span></div>
+          <div class="stock-item"><span class="stock-name">科大讯飞</span><span class="stock-change up">+1.85%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+      <!-- 模型02: 短线强势模型 -->
+      <div class="model-card" data-category="daily" data-name="短线强势模型">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">短线强势模型</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">结合资金流向与价格动量捕捉短线机会</div>
+        <div class="model-update">6月26日 更新 · 下次调仓 7月17日</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">桂林三金</span><span class="stock-change up">+0.90%</span></div>
+          <div class="stock-item"><span class="stock-name">沃华医药</span><span class="stock-change down">-0.30%</span></div>
+          <div class="stock-item"><span class="stock-name">山河药辅</span><span class="stock-change up">+0.22%</span></div>
+          <div class="stock-item"><span class="stock-name">比亚迪</span><span class="stock-change up">+2.8%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+      <!-- 模型03: 趋势跟随模型 -->
+      <div class="model-card" data-category="daily" data-name="趋势跟随模型">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">趋势跟随模型</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">基于MACD与趋势线指标追踪中期趋势</div>
+        <div class="model-update">6月26日 更新 · 下次调仓 7月17日</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">桂林三金</span><span class="stock-change up">+0.59%</span></div>
+          <div class="stock-item"><span class="stock-name">沃华医药</span><span class="stock-change up">+0.35%</span></div>
+          <div class="stock-item"><span class="stock-name">山河药辅</span><span class="stock-change up">+0.18%</span></div>
+          <div class="stock-item"><span class="stock-name">贵州茅台</span><span class="stock-change up">+1.2%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+      <!-- 模型04: 资金面选股模型 -->
+      <div class="model-card" data-category="daily" data-name="资金面选股模型">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">资金面选股模型</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">追踪主力资金动向，筛选大单净流入标的</div>
+        <div class="model-update">6月26日 更新 · 下次调仓 7月23日</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">国货航</span><span class="stock-change up">+1.17%</span></div>
+          <div class="stock-item"><span class="stock-name">中国平安</span><span class="stock-change up">+2.1%</span></div>
+          <div class="stock-item"><span class="stock-name">招商银行</span><span class="stock-change up">+1.5%</span></div>
+          <div class="stock-item"><span class="stock-name">宁德时代</span><span class="stock-change up">+3.2%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+      <!-- 模型05: 成长股选股模型 -->
+      <div class="model-card" data-category="quarterly" data-name="成长股选股模型">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">成长股选股模型</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">关注营收与净利润增速，挖掘高成长标的</div>
+        <div class="model-update">6月26日 更新 · 下次调仓 9月（第1周）</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">华联控股</span><span class="stock-change down">-8.71%</span></div>
+          <div class="stock-item"><span class="stock-name">中际旭创</span><span class="stock-change up">+6.3%</span></div>
+          <div class="stock-item"><span class="stock-name">阳光电源</span><span class="stock-change up">+4.2%</span></div>
+          <div class="stock-item"><span class="stock-name">派能科技</span><span class="stock-change up">+5.2%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+      <!-- 模型06: 稳定性选股模型 -->
+      <div class="model-card" data-category="quarterly" data-name="稳定性选股模型">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">稳定性选股模型</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">以股息率与现金流为筛项，追求稳健收益</div>
+        <div class="model-update">6月26日 更新 · 下次调仓 9月（第1周）</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">信立泰</span><span class="stock-change up">+1.16%</span></div>
+          <div class="stock-item"><span class="stock-name">长江电力</span><span class="stock-change up">+0.8%</span></div>
+          <div class="stock-item"><span class="stock-name">中国神华</span><span class="stock-change up">+1.1%</span></div>
+          <div class="stock-item"><span class="stock-name">交通银行</span><span class="stock-change up">+0.5%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+      <!-- 模型07: 公司盈利模型 -->
+      <div class="model-card" data-category="quarterly" data-name="公司盈利模型">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">公司盈利模型</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">评估净现比与ROE，筛选盈利质量优异公司</div>
+        <div class="model-update">6月28日 更新 · 下次调仓 9月（第1周）</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">同花顺</span><span class="stock-change up">+2.13%</span></div>
+          <div class="stock-item"><span class="stock-name">五粮液</span><span class="stock-change down">-0.8%</span></div>
+          <div class="stock-item"><span class="stock-name">中国建筑</span><span class="stock-change up">+1.2%</span></div>
+          <div class="stock-item"><span class="stock-name">中国铁建</span><span class="stock-change up">+0.9%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+      <!-- 模型08: 高股息低波动选股 -->
+      <div class="model-card" data-category="quarterly" data-name="高股息低波动选股">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">高股息低波动选股</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">筛选连续高分红的稳健标的，追求稳定现金回报</div>
+        <div class="model-update">6月28日 更新 · 下次调仓 11月1日</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">长江电力</span><span class="stock-change up">+0.35%</span></div>
+          <div class="stock-item"><span class="stock-name">工商银行</span><span class="stock-change up">+0.17%</span></div>
+          <div class="stock-item"><span class="stock-name">大秦铁路</span><span class="stock-change up">+0.3%</span></div>
+          <div class="stock-item"><span class="stock-name">紫金矿业</span><span class="stock-change up">+2.5%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+      <!-- 模型09: 低估值选股 -->
+      <div class="model-card" data-category="quarterly" data-name="低估值选股">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">低估值选股</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">基于PB、PE多维评估，捕捉估值修复机会</div>
+        <div class="model-update">6月28日 更新 · 下次调仓 9月（第1周）</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">中南建设</span><span class="stock-change up">+1.42%</span></div>
+          <div class="stock-item"><span class="stock-name">华菱钢铁</span><span class="stock-change down">-0.47%</span></div>
+          <div class="stock-item"><span class="stock-name">中国建筑</span><span class="stock-change up">+0.54%</span></div>
+          <div class="stock-item"><span class="stock-name">洛阳钼业</span><span class="stock-change up">+1.8%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+      <!-- 模型10: 产业景气度选股 -->
+      <div class="model-card" data-category="quarterly" data-name="产业景气度选股">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">产业景气度选股</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">追踪行业景气周期，布局高增速赛道</div>
+        <div class="model-update">6月28日 更新 · 下次调仓 9月（第1周）</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">隆基绿能</span><span class="stock-change up">+2.85%</span></div>
+          <div class="stock-item"><span class="stock-name">通威股份</span><span class="stock-change up">+1.68%</span></div>
+          <div class="stock-item"><span class="stock-name">阳光电源</span><span class="stock-change up">+3.21%</span></div>
+          <div class="stock-item"><span class="stock-name">宁德时代</span><span class="stock-change up">+3.2%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+      <!-- 模型11: 新兴产业+成长股 -->
+      <div class="model-card" data-category="monthly" data-name="新兴产业+成长股">
+        <div class="model-header">
+          <div class="model-avatar"><img src="ai-min.png" alt=""></div>
+          <div class="model-title">新兴产业+成长股</div>
+          <button class="model-fav-btn" onclick="toggleFavorite(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>
+        <div class="model-desc">聚焦AI、半导体、新能源等前沿赛道，追求高成长</div>
+        <div class="model-update">6月28日 更新 · 下次调仓 7月31日</div>
+        <div class="stock-list">
+          <div class="stock-item"><span class="stock-name">寒武纪</span><span class="stock-change up">+5.82%</span></div>
+          <div class="stock-item"><span class="stock-name">海光信息</span><span class="stock-change up">+3.45%</span></div>
+          <div class="stock-item"><span class="stock-name">中芯国际</span><span class="stock-change up">+2.18%</span></div>
+          <div class="stock-item"><span class="stock-name">派能科技</span><span class="stock-change up">+5.2%</span></div>
+        </div>
+        <button class="run-btn">
+          <span class="run-btn-text">立即选股</span>
+          <span class="run-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- 问答输入框（吸底固定，不随页面滚动） -->
+    <div class="qa-input-wrapper">
+      <div class="qa-input-normal" id="inputNormal">
+        <button class="qa-mic-btn" id="micBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+        <input type="text" class="qa-input-field" id="inputField" placeholder="发消息或按住说话...">
+        <button class="qa-send-btn" id="sendBtn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+
+      <div class="qa-input-voice" id="inputVoice">
+        <div class="qa-voice-top">
+          <div class="qa-voice-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </div>
+          <span class="qa-voice-text">按住说话</span>
+        </div>
+        <span class="qa-voice-hint">点击切换键盘输入</span>
+      </div>
+
+      <div class="qa-input-recording" id="inputRecording">
+        <div class="qa-recording-content">
+          <span class="qa-recording-text">松开发送，上滑取消</span>
+          <div class="qa-recording-wave">
+            <div class="qa-wave-bar"></div>
+            <div class="qa-wave-bar"></div>
+            <div class="qa-wave-bar"></div>
+            <div class="qa-wave-bar"></div>
+            <div class="qa-wave-bar"></div>
+            <div class="qa-wave-bar"></div>
+            <div class="qa-wave-bar"></div>
+            <div class="qa-wave-bar"></div>
+            <div class="qa-wave-bar"></div>
+          </div>
+          <span class="qa-recording-cancel">上滑取消</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Home指示条 -->
+    <div class="home-indicator"></div>
+  </div>
+
+  <script>
+    const inputNormal = document.getElementById('inputNormal');
+    const inputVoice = document.getElementById('inputVoice');
+    const inputRecording = document.getElementById('inputRecording');
+    const micBtn = document.getElementById('micBtn');
+    const inputField = document.getElementById('inputField');
+    const sendBtn = document.getElementById('sendBtn');
+
+    micBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      inputNormal.style.display = 'none';
+      inputVoice.style.display = 'flex';
+    });
+
+    inputVoice.addEventListener('mousedown', function(e) { e.preventDefault(); startRecording(); });
+    inputVoice.addEventListener('touchstart', function(e) { e.preventDefault(); startRecording(); });
+    inputVoice.addEventListener('mouseup', function() { if(isRecording) stopRecording(false); });
+    inputVoice.addEventListener('touchend', function(e) { if(isRecording) { e.preventDefault(); stopRecording(false); }});
+
+    let cancelZone = false;
+    inputVoice.addEventListener('touchmove', function(e) {
+      if(isRecording) {
+        const touch = e.touches[0];
+        const rect = inputVoice.getBoundingClientRect();
+        cancelZone = touch.clientY < rect.top - 20;
+        inputVoice.style.opacity = cancelZone ? '0.5' : '1';
+      }
+    });
+
+    let isRecording = false;
+    function startRecording() {
+      isRecording = true;
+      cancelZone = false;
+      inputVoice.style.display = 'none';
+      inputRecording.style.display = 'flex';
+    }
+
+    function stopRecording(cancelled) {
+      isRecording = false;
+      inputRecording.style.display = 'none';
+      if(cancelled || cancelZone) {
+        inputVoice.style.opacity = '1';
+        inputVoice.style.display = 'flex';
+      } else {
+        inputVoice.style.display = 'none';
+        inputNormal.style.display = 'flex';
+      }
+    }
+
+    inputRecording.addEventListener('touchend', function(e) { e.preventDefault(); stopRecording(cancelZone); });
+    inputRecording.addEventListener('mouseup', function() { stopRecording(cancelZone); });
+
+    inputVoice.querySelector('.qa-voice-hint').addEventListener('click', function(e) {
+      e.stopPropagation();
+      inputVoice.style.display = 'none';
+      inputNormal.style.display = 'flex';
+      inputField.focus();
+    });
+
+    sendBtn.addEventListener('click', function() {
+      const text = inputField.value.trim();
+      if(text) { alert('发送: ' + text); inputField.value = ''; }
+    });
+
+    inputField.addEventListener('keypress', function(e) {
+      if(e.key === 'Enter') {
+        const text = inputField.value.trim();
+        if(text) { alert('发送: ' + text); inputField.value = ''; }
+      }
+    });
+
+    // ========== 筛选功能 ==========
+    let favorites = JSON.parse(localStorage.getItem('modelFavorites') || '[]');
+
+    function toggleFavorite(btn) {
+      const card = btn.closest('.model-card');
+      const modelName = card.dataset.name;
+      btn.classList.toggle('active');
+
+      if (btn.classList.contains('active')) {
+        if (!favorites.includes(modelName)) {
+          favorites.push(modelName);
+        }
+      } else {
+        favorites = favorites.filter(f => f !== modelName);
+      }
+
+      localStorage.setItem('modelFavorites', JSON.stringify(favorites));
+      updateFilterCounts();
+    }
+
+    // 初始化收藏状态
+    document.querySelectorAll('.model-card').forEach(card => {
+      const favBtn = card.querySelector('.model-fav-btn');
+      if (favBtn && favorites.includes(card.dataset.name)) {
+        favBtn.classList.add('active');
+      }
+    });
+
+    // 筛选功能
+    let currentFilter = 'all';
+
+    document.querySelectorAll('.filter-tag').forEach(tag => {
+      tag.addEventListener('click', function() {
+        document.querySelector('.filter-tag.active').classList.remove('active');
+        this.classList.add('active');
+        currentFilter = this.dataset.filter;
+        filterModels();
+      });
+    });
+
+    function filterModels() {
+      document.querySelectorAll('.model-card').forEach(card => {
+        const category = card.dataset.category;
+        const isFav = favorites.includes(card.dataset.name);
+
+        let show = true;
+
+        if (currentFilter === 'favorite' && !isFav) show = false;
+        if (currentFilter !== 'all' && currentFilter !== 'favorite' && category !== currentFilter) show = false;
+
+        card.classList.toggle('hidden', !show);
+      });
+    }
+
+    function updateFilterCounts() {
+      const cards = document.querySelectorAll('.model-card');
+      const counts = {
+        all: cards.length,
+        daily: 0,
+        quarterly: 0,
+        monthly: 0,
+        favorite: favorites.length
+      };
+
+      cards.forEach(card => {
+        const cat = card.dataset.category;
+        if (counts[cat] !== undefined) counts[cat]++;
+      });
+
+      document.querySelector('[data-filter="all"]').textContent = `全部 ${counts.all}`;
+      document.querySelector('[data-filter="daily"]').textContent = `每日调仓 ${counts.daily}`;
+      document.querySelector('[data-filter="quarterly"]').textContent = `季度调仓 ${counts.quarterly}`;
+      document.querySelector('[data-filter="monthly"]').textContent = `月末调仓 ${counts.monthly}`;
+      document.querySelector('[data-filter="favorite"]').textContent = `我的收藏 ${counts.favorite}`;
+    }
+
+    // 初始化
+    updateFilterCounts();
+  </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>更换手机号 - 华创证券APP</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0B101E;
+      --bg-card: #1B243D;
+      --accent-blue: #3464E0;
+      --text-primary: #FFFFFF;
+      --text-secondary: #8A98B6;
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(180deg, #0B101E 0%, #131A2F 100%);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    /* 状态栏 */
+    .status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .status-icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    /* 页面容器 */
+    .page-container {
+      height: calc(812px - 44px - 34px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .page-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* 导航栏 */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: linear-gradient(180deg, #0B101E 0%, rgba(11, 16, 30, 0.95) 100%);
+    }
+
+    .nav-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .nav-icon svg {
+      color: #FFFFFF;
+      opacity: 0.95;
+    }
+
+    .nav-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* 内容区域 */
+    .content {
+      padding: 40px 24px;
+    }
+
+    /* 手机号卡片 */
+    .phone-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .phone-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .phone-number {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 2px;
+    }
+
+    /* 更换按钮 */
+    .change-btn {
+      width: 100%;
+      height: 48px;
+      background: var(--accent-blue);
+      border: none;
+      border-radius: 24px;
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* 客服热线 */
+    .hotline {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .hotline-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .hotline-phone {
+      font-size: 15px;
+      color: var(--accent-blue);
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* Home指示条 */
+    .home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><path d="M1 4.5C1 3.67 1.67 3 2.5 3H3.5C4.33 3 5 3.67 5 4.5V10.5C5 11.33 4.33 12 3.5 12H2.5C1.67 12 1 11.33 1 10.5V4.5Z"/><path d="M6 3C6 2.17 6.67 1.5 7.5 1.5H8.5C9.33 1.5 10 2.17 10 3V10.5C10 11.33 9.33 12 8.5 12H7.5C6.67 12 6 11.33 6 10.5V3Z"/><path d="M11 2C11 1.17 11.67 0.5 12.5 0.5H13.5C14.33 0.5 15 1.17 15 2V10.5C15 11.33 14.33 12 13.5 12H12.5C11.67 12 11 11.33 11 10.5V2Z"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.5C9.38 2.5 10.5 3.62 10.5 5C10.5 6.38 9.38 7.5 8 7.5C6.62 7.5 5.5 6.38 5.5 5C5.5 3.62 6.62 2.5 8 2.5ZM8 9.5C10.5 9.5 12.73 7.71 13.53 5.5H10.03C9.73 5.5 9.53 5.29 9.53 5C9.53 4.71 9.73 4.5 10.03 4.5H11.5C11.12 2.81 9.69 1.5 8 1.5C6.31 1.5 4.88 2.81 4.5 4.5H6C6.29 4.5 6.5 4.71 6.5 5C6.5 5.29 6.29 5.5 6 5.5H2.47C3.27 7.71 5.5 9.5 8 9.5Z"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="currentColor" fill="none" opacity="0.4"/><rect x="2" y="2" width="17" height="8" rx="1.5" fill="currentColor"/><path d="M23 4V8C23.83 7.67 24.5 6.92 24.5 6C24.5 5.08 23.83 4.33 23 4Z"/></svg>
+      </div>
+    </div>
+
+    <div class="page-container">
+      <!-- 导航栏 -->
+      <div class="nav-bar">
+        <div class="nav-icon" onclick="history.back()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </div>
+        <div class="nav-title">更换手机号</div>
+        <div style="width: 32px;"></div>
+      </div>
+
+      <!-- 内容区域 -->
+      <div class="content">
+        <div class="phone-card">
+          <div class="phone-label">已绑定手机号</div>
+          <div class="phone-number">150****0463</div>
+        </div>
+
+        <button class="change-btn" onclick="location.href='更换手机号-步骤1.html'">更换手机号</button>
+
+        <!-- 客服热线 -->
+        <div class="hotline">
+          <div class="hotline-text">如有疑问，请联系客服热线</div>
+          <div class="hotline-phone">95513 (工作日 9:00-21:00)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Home指示条 -->
+    <div class="home-indicator"></div>
+  </div>
+</body>
+</html>
